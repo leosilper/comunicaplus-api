@@ -106,7 +106,7 @@ GET http://localhost:8080/api/messages
 
 Buscar por conteúdo:
 ```http
-GET /api/messages?content=teste
+GET /api/messages?content=socorro
 ```
 
 Buscar por ID do dispositivo remetente:
