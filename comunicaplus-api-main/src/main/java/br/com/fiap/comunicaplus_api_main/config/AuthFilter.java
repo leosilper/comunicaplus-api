@@ -1,10 +1,8 @@
 package br.com.fiap.comunicaplus_api_main.config;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -23,51 +21,52 @@ public class AuthFilter extends OncePerRequestFilter {
     @Autowired
     private TokenService tokenService;
 
-    private static final List<String> EXCLUDED_PATHS = List.of(
-        "/swagger-ui", "/swagger-ui/", "/swagger-ui.html",
-        "/v3/api-docs", "/v3/api-docs/", "/v3/api-docs/swagger-config",
-        "/auth/login", "/h2-console"
-    );
-
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        return EXCLUDED_PATHS.stream().anyMatch(path::startsWith);
-    }
-
-    @Override
-    protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        
+        System.out.println("=== FILTRO DE AUTENTICAÇÃO ===");
 
-        String header = request.getHeader("Authorization");
+        var header = request.getHeader("Authorization");
 
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (header == null) {
+            System.out.println("→ Sem header Authorization");
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = header.replace("Bearer ", "").trim();
+        if (!header.startsWith("Bearer ")) {
+            System.out.println("→ Token não começa com 'Bearer '");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("""
+                { "message": "Token deve começar com Bearer" }
+            """);
+            return;
+        }
+
+        var token = header.replace("Bearer ", "").trim();
 
         try {
             User user = tokenService.getUserFromToken(token);
 
             if (user != null) {
                 var authentication = new UsernamePasswordAuthenticationToken(
-                        user.getEmail(), null, user.getAuthorities()
+                    user, null, user.getAuthorities()
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("→ Usuário autenticado: " + user.getUsername());
             }
 
+            filterChain.doFilter(request, response);
+
         } catch (Exception e) {
+            System.err.println("→ Erro ao validar token: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"message\": \"Token inválido ou expirado\"}");
-            return;
+            response.getWriter().write("""
+                { "message": "Token inválido ou expirado" }
+            """);
         }
-
-        filterChain.doFilter(request, response);
     }
 }

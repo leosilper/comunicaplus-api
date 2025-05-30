@@ -32,12 +32,21 @@ public class DatabaseSeeder {
                             .email("alice@email.com")
                             .password(encoder.encode("123456"))
                             .deviceId("device-alice-001")
+                            .role(Role.USER)
                             .build(),
                     User.builder()
                             .name("Bob")
                             .email("bob@email.com")
                             .password(encoder.encode("123456"))
                             .deviceId("device-bob-001")
+                            .role(Role.USER)
+                            .build(),
+                    User.builder()
+                            .name("Carol")
+                            .email("carol@email.com")
+                            .password(encoder.encode("123456"))
+                            .deviceId("device-carol-001")
+                            .role(Role.ADMIN)
                             .build()
             );
 
@@ -55,7 +64,6 @@ public class DatabaseSeeder {
                             .totalMessagesSent(0)
                             .totalMessagesReceived(0)
                             .build(),
-
                     Device.builder()
                             .deviceName("Celular Bob")
                             .bluetoothAddress("00:11:22:33:44:BB")
@@ -64,7 +72,6 @@ public class DatabaseSeeder {
                             .totalMessagesSent(0)
                             .totalMessagesReceived(0)
                             .build(),
-
                     Device.builder()
                             .deviceName("Celular Carol")
                             .bluetoothAddress("00:11:22:33:44:CC")
@@ -114,4 +121,5 @@ public class DatabaseSeeder {
                 deviceRepository.save(recipient); 
             }
         }
-    }}
+    }
+}

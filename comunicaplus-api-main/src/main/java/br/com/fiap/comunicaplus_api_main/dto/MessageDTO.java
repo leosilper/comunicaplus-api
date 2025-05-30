@@ -12,5 +12,5 @@ public class MessageDTO {
     private String content;
     private LocalDateTime timestamp;
     private boolean delivered;
-    private boolean forwarded; // indica se foi retransmitida por outro dispositivo
+    private boolean forwarded;
 }

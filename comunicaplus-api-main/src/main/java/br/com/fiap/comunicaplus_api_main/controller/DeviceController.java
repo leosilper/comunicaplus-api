@@ -24,7 +24,7 @@ public class DeviceController {
     public List<DeviceSummaryDTO> listSummary() {
         return deviceRepository.findAll().stream().map(device -> {
             DeviceSummaryDTO dto = new DeviceSummaryDTO();
-            dto.setDeviceName(device.getDeviceName());  // CORREÇÃO AQUI
+            dto.setDeviceName(device.getDeviceName());  
 
             // Filtra mensagens onde o device é o remetente (sender)
             var messages = messageRepository.findAll().stream()

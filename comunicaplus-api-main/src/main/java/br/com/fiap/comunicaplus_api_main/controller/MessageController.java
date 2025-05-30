@@ -29,9 +29,10 @@ public class MessageController {
     private final MessageRepository messageRepository;
 
     @PostMapping
-    public ResponseEntity<Message> create(@RequestBody @Valid Message message) {
+    public ResponseEntity<MessageDTO> create(@RequestBody @Valid Message message) {
         Message saved = messageService.save(message);
-        return ResponseEntity.created(URI.create("/api/messages/" + saved.getId())).body(saved);
+        return ResponseEntity.created(URI.create("/api/messages/" + saved.getId()))
+                             .body(toDTO(saved));
     }
 
     @GetMapping
@@ -51,19 +52,19 @@ public class MessageController {
                         .and(MessageSpecification.hasDevice(device))
         );
 
-        return messageRepository.findAll(spec, pageable)
-                .map(this::toDTO);
+        return messageRepository.findAll(spec, pageable).map(this::toDTO);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Message> get(@PathVariable Long id) {
+    public ResponseEntity<MessageDTO> get(@PathVariable Long id) {
         return messageService.findById(id)
+                .map(this::toDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Message> update(@PathVariable Long id, @RequestBody @Valid Message updatedMessage) {
+    public ResponseEntity<MessageDTO> update(@PathVariable Long id, @RequestBody @Valid Message updatedMessage) {
         return messageService.findById(id)
                 .map(existingMessage -> {
                     existingMessage.setContent(updatedMessage.getContent());
@@ -72,8 +73,8 @@ public class MessageController {
                     existingMessage.setTimestamp(updatedMessage.getTimestamp());
                     existingMessage.setDelivered(updatedMessage.isDelivered());
                     existingMessage.setForwarded(updatedMessage.isForwarded());
-                    Message savedMessage = messageService.save(existingMessage);
-                    return ResponseEntity.ok(savedMessage);
+                    Message saved = messageService.save(existingMessage);
+                    return ResponseEntity.ok(toDTO(saved));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
