@@ -39,5 +39,6 @@ public class Message {
 
     @NotNull(message = "O tipo da mensagem é obrigatório")
     @Enumerated(EnumType.STRING)
+    @Column(name = "message_type")
     private MessageType messageType;
 }

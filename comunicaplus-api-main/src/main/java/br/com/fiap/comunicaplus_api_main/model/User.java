@@ -20,7 +20,9 @@ import java.util.Collections;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_seq")
+    @SequenceGenerator(name = "users_seq", sequenceName = "SEQ_USERS_ID", allocationSize = 1)
+    @Column(name = "ID_USER")
     private Long id;
 
     @NotBlank(message = "Nome é obrigatório")
