@@ -1,6 +1,7 @@
 package br.com.fiap.comunicaplus_api_main.config;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,11 +22,30 @@ public class AuthFilter extends OncePerRequestFilter {
     @Autowired
     private TokenService tokenService;
 
+    // Lista de rotas públicas que devem ser ignoradas pelo filtro
+    private static final List<String> PUBLIC_PATHS = List.of(
+        "/auth/login",
+        "/auth/register",
+        "/v3/api-docs",
+        "/swagger-ui",
+        "/swagger-ui.html",
+        "/h2-console"
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
+
         System.out.println("=== FILTRO DE AUTENTICAÇÃO ===");
+
+        String path = request.getServletPath();
+
+        // Ignorar autenticação em rotas públicas
+        if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
+            System.out.println("→ Rota pública liberada: " + path);
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         var header = request.getHeader("Authorization");
 

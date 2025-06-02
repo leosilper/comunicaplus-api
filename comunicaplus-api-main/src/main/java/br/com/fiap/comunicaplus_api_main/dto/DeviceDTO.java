@@ -8,7 +8,7 @@ public class DeviceDTO {
     private String deviceName;
     private String bluetoothAddress;
     private String wifiDirectAddress;
-    private String status; // online, offline, sincronizando
+    private String status; 
     private int totalMessagesSent;
     private int totalMessagesReceived;
 }

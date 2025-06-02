@@ -1,15 +1,23 @@
 package br.com.fiap.comunicaplus_api_main.config;
 
-import br.com.fiap.comunicaplus_api_main.model.*;
-import br.com.fiap.comunicaplus_api_main.repository.*;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
+
+import br.com.fiap.comunicaplus_api_main.model.Device;
+import br.com.fiap.comunicaplus_api_main.model.DeviceStatus;
+import br.com.fiap.comunicaplus_api_main.model.Message;
+import br.com.fiap.comunicaplus_api_main.model.MessageType;
+import br.com.fiap.comunicaplus_api_main.model.Role;
+import br.com.fiap.comunicaplus_api_main.model.User;
+import br.com.fiap.comunicaplus_api_main.repository.DeviceRepository;
+import br.com.fiap.comunicaplus_api_main.repository.MessageRepository;
+import br.com.fiap.comunicaplus_api_main.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -19,136 +27,107 @@ public class DatabaseSeeder {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
 
+    private final Random random = new Random();
+
     @PostConstruct
     public void seedDatabase() {
+        seedUsers();
+        seedDevices();
+        seedMessages();
+    }
 
-        // Usuários
+    private void seedUsers() {
         if (userRepository.count() == 0) {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
             List<User> users = List.of(
-                    User.builder()
-                            .name("Alice")
-                            .email("alice@email.com")
-                            .password(encoder.encode("123456"))
-                            .deviceId("device-alice-001")
-                            .role(Role.USER)
-                            .build(),
-                    User.builder()
-                            .name("Bob")
-                            .email("bob@email.com")
-                            .password(encoder.encode("123456"))
-                            .deviceId("device-bob-001")
-                            .role(Role.USER)
-                            .build(),
-                    User.builder()
-                            .name("Carol")
-                            .email("carol@email.com")
-                            .password(encoder.encode("123456"))
-                            .deviceId("device-carol-001")
-                            .role(Role.ADMIN)
-                            .build()
+                User.builder().name("Alice").email("alice@email.com").password(encoder.encode("123456")).deviceId("device-alice-001").role(Role.USER).build(),
+                User.builder().name("Bob").email("bob@email.com").password(encoder.encode("123456")).deviceId("device-bob-001").role(Role.USER).build(),
+                User.builder().name("Carol").email("carol@email.com").password(encoder.encode("123456")).deviceId("device-carol-001").role(Role.ADMIN).build()
             );
 
             userRepository.saveAll(users);
         }
+    }
 
-        // Dispositivos
+    private void seedDevices() {
         if (deviceRepository.count() == 0) {
             List<Device> devices = List.of(
-                    Device.builder()
-                            .deviceName("Celular Alice")
-                            .bluetoothAddress("00:11:22:33:44:AA")
-                            .wifiDirectAddress("192.168.49.1")
-                            .status(DeviceStatus.ONLINE)
-                            .totalMessagesSent(0)
-                            .totalMessagesReceived(0)
-                            .build(),
-                    Device.builder()
-                            .deviceName("Celular Bob")
-                            .bluetoothAddress("00:11:22:33:44:BB")
-                            .wifiDirectAddress("192.168.49.2")
-                            .status(DeviceStatus.ONLINE)
-                            .totalMessagesSent(0)
-                            .totalMessagesReceived(0)
-                            .build(),
-                    Device.builder()
-                            .deviceName("Celular Carol")
-                            .bluetoothAddress("00:11:22:33:44:CC")
-                            .wifiDirectAddress("192.168.49.3")
-                            .status(DeviceStatus.OFFLINE)
-                            .totalMessagesSent(0)
-                            .totalMessagesReceived(0)
-                            .build()
+                Device.builder().deviceName("Celular Alice").bluetoothAddress("00:11:22:33:44:AA").wifiDirectAddress("192.168.49.1").status(DeviceStatus.ONLINE).build(),
+                Device.builder().deviceName("Celular Bob").bluetoothAddress("00:11:22:33:44:BB").wifiDirectAddress("192.168.49.2").status(DeviceStatus.ONLINE).build(),
+                Device.builder().deviceName("Celular Carol").bluetoothAddress("00:11:22:33:44:CC").wifiDirectAddress("192.168.49.3").status(DeviceStatus.OFFLINE).build()
             );
 
             deviceRepository.saveAll(devices);
         }
+    }
 
-        // Mensagens
+    private void seedMessages() {
         if (messageRepository.count() == 0) {
             List<Device> devices = deviceRepository.findAll();
-            Random random = new Random();
 
-            // Criar uma mensagem de cada tipo
+            // Uma mensagem de cada tipo
             for (MessageType type : MessageType.values()) {
-                Device sender = devices.get(random.nextInt(devices.size()));
-                Device recipient;
-                do {
-                    recipient = devices.get(random.nextInt(devices.size()));
-                } while (recipient.equals(sender));
-
-                Message message = Message.builder()
-                        .sender(sender)
-                        .recipient(recipient)
-                        .content("Mensagem do tipo: " + type.name())
-                        .timestamp(LocalDateTime.now().minusMinutes(random.nextInt(120)))
-                        .delivered(random.nextBoolean())
-                        .forwarded(random.nextBoolean())
-                        .messageType(type)
-                        .build();
-
-                messageRepository.save(message);
-
-                sender.setTotalMessagesSent(sender.getTotalMessagesSent() + 1);
-                recipient.setTotalMessagesReceived(recipient.getTotalMessagesReceived() + 1);
-                deviceRepository.save(sender);
-                deviceRepository.save(recipient);
+                createMessage(devices, "Mensagem do tipo: " + type.name(), type);
             }
 
-            // Mensagens adicionais para variedade
+            // Mensagens adicionais
             String[] contents = {
-                    "Sinal fraco nesta região.",
-                    "Preciso de socorro no bairro Novo Horizonte.",
-                    "Grupos reunidos no colégio central.",
-                    "Enviando kit de primeiros socorros.",
-                    "Sem energia, aguardando instruções."
+                "Sinal fraco nesta região.",
+                "Preciso de socorro no bairro Novo Horizonte.",
+                "Grupos reunidos no colégio central.",
+                "Enviando kit de primeiros socorros.",
+                "Sem energia, aguardando instruções."
             };
 
             for (String content : contents) {
-                Device sender = devices.get(random.nextInt(devices.size()));
-                Device recipient;
-                do {
-                    recipient = devices.get(random.nextInt(devices.size()));
-                } while (recipient.equals(sender));
-
-                Message message = Message.builder()
-                        .sender(sender)
-                        .recipient(recipient)
-                        .content(content)
-                        .timestamp(LocalDateTime.now().minusMinutes(random.nextInt(120)))
-                        .delivered(random.nextBoolean())
-                        .forwarded(random.nextBoolean())
-                        .messageType(MessageType.values()[random.nextInt(MessageType.values().length)])
-                        .build();
-
-                messageRepository.save(message);
-
-                sender.setTotalMessagesSent(sender.getTotalMessagesSent() + 1);
-                recipient.setTotalMessagesReceived(recipient.getTotalMessagesReceived() + 1);
-                deviceRepository.save(sender);
-                deviceRepository.save(recipient);
+                MessageType determinedType = determineMessageType(content);
+                createMessage(devices, content, determinedType);
             }
         }
+    }
+
+    private MessageType determineMessageType(String content) {
+        String lowerContent = content.toLowerCase();
+
+        if (lowerContent.contains("socorro") || lowerContent.contains("ajuda")) {
+            return MessageType.REQUEST_HELP;
+        } else if (lowerContent.contains("alerta") || lowerContent.contains("sinal")) {
+            return MessageType.ALERT;
+        } else if (lowerContent.contains("kit") || lowerContent.contains("instruções")) {
+            return MessageType.FORWARDED;
+        } else {
+            return MessageType.INFO;
+        }
+    }
+
+    private void createMessage(List<Device> devices, String content, MessageType type) {
+        Device sender = getRandomDevice(devices);
+        Device recipient;
+        do {
+            recipient = getRandomDevice(devices);
+        } while (recipient.equals(sender));
+
+        Message message = Message.builder()
+            .sender(sender)
+            .recipient(recipient)
+            .content(content)
+            .timestamp(LocalDateTime.now().minusMinutes(random.nextInt(120)))
+            .delivered(random.nextBoolean())
+            .forwarded(random.nextBoolean())
+            .messageType(type)
+            .build();
+
+        messageRepository.save(message);
+
+        sender.setTotalMessagesSent(sender.getTotalMessagesSent() + 1);
+        recipient.setTotalMessagesReceived(recipient.getTotalMessagesReceived() + 1);
+
+        deviceRepository.save(sender);
+        deviceRepository.save(recipient);
+    }
+
+    private Device getRandomDevice(List<Device> devices) {
+        return devices.get(random.nextInt(devices.size()));
     }
 }
