@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import br.com.fiap.comunicaplus_api_main.dto.MessageDTO;
 import br.com.fiap.comunicaplus_api_main.model.Device;
 import br.com.fiap.comunicaplus_api_main.model.Message;
+import br.com.fiap.comunicaplus_api_main.model.MessageType;
 import br.com.fiap.comunicaplus_api_main.repository.DeviceRepository;
 import br.com.fiap.comunicaplus_api_main.repository.MessageRepository;
 import br.com.fiap.comunicaplus_api_main.service.MessageService;
@@ -40,6 +41,7 @@ public class MessageController {
     public Page<MessageDTO> list(
             @RequestParam(required = false) String content,
             @RequestParam(required = false) Long deviceId,
+            @RequestParam(required = false) MessageType messageType,
             Pageable pageable
     ) {
         Device device = null;
@@ -50,6 +52,7 @@ public class MessageController {
         Specification<Message> spec = Specification.where(
                 MessageSpecification.hasContent(content)
                         .and(MessageSpecification.hasDevice(device))
+                        .and(MessageSpecification.hasMessageType(messageType))
         );
 
         return messageRepository.findAll(spec, pageable).map(this::toDTO);
@@ -73,6 +76,7 @@ public class MessageController {
                     existingMessage.setTimestamp(updatedMessage.getTimestamp());
                     existingMessage.setDelivered(updatedMessage.isDelivered());
                     existingMessage.setForwarded(updatedMessage.isForwarded());
+                    existingMessage.setMessageType(updatedMessage.getMessageType());
                     Message saved = messageService.save(existingMessage);
                     return ResponseEntity.ok(toDTO(saved));
                 })
@@ -94,6 +98,7 @@ public class MessageController {
         dto.setTimestamp(message.getTimestamp());
         dto.setDelivered(message.isDelivered());
         dto.setForwarded(message.isForwarded());
+        dto.setMessageType(message.getMessageType());
         return dto;
     }
 }

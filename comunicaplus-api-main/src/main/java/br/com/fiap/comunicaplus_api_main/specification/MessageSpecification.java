@@ -4,6 +4,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import br.com.fiap.comunicaplus_api_main.model.Device;
 import br.com.fiap.comunicaplus_api_main.model.Message;
+import br.com.fiap.comunicaplus_api_main.model.MessageType;
 
 public class MessageSpecification {
 
@@ -28,5 +29,10 @@ public class MessageSpecification {
     public static Specification<Message> isForwarded(Boolean forwarded) {
         return (root, query, builder) -> 
             forwarded == null ? null : builder.equal(root.get("forwarded"), forwarded);
+    }
+
+    public static Specification<Message> hasMessageType(MessageType type) {
+        return (root, query, builder) ->
+            type == null ? null : builder.equal(root.get("messageType"), type);
     }
 }

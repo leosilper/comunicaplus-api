@@ -36,4 +36,8 @@ public class Message {
     private boolean delivered;
 
     private boolean forwarded;
+
+    @NotNull(message = "O tipo da mensagem é obrigatório")
+    @Enumerated(EnumType.STRING)
+    private MessageType messageType;
 }

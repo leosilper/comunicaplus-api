@@ -89,6 +89,34 @@ public class DatabaseSeeder {
         if (messageRepository.count() == 0) {
             List<Device> devices = deviceRepository.findAll();
             Random random = new Random();
+
+            // Criar uma mensagem de cada tipo
+            for (MessageType type : MessageType.values()) {
+                Device sender = devices.get(random.nextInt(devices.size()));
+                Device recipient;
+                do {
+                    recipient = devices.get(random.nextInt(devices.size()));
+                } while (recipient.equals(sender));
+
+                Message message = Message.builder()
+                        .sender(sender)
+                        .recipient(recipient)
+                        .content("Mensagem do tipo: " + type.name())
+                        .timestamp(LocalDateTime.now().minusMinutes(random.nextInt(120)))
+                        .delivered(random.nextBoolean())
+                        .forwarded(random.nextBoolean())
+                        .messageType(type)
+                        .build();
+
+                messageRepository.save(message);
+
+                sender.setTotalMessagesSent(sender.getTotalMessagesSent() + 1);
+                recipient.setTotalMessagesReceived(recipient.getTotalMessagesReceived() + 1);
+                deviceRepository.save(sender);
+                deviceRepository.save(recipient);
+            }
+
+            // Mensagens adicionais para variedade
             String[] contents = {
                     "Sinal fraco nesta região.",
                     "Preciso de socorro no bairro Novo Horizonte.",
@@ -111,6 +139,7 @@ public class DatabaseSeeder {
                         .timestamp(LocalDateTime.now().minusMinutes(random.nextInt(120)))
                         .delivered(random.nextBoolean())
                         .forwarded(random.nextBoolean())
+                        .messageType(MessageType.values()[random.nextInt(MessageType.values().length)])
                         .build();
 
                 messageRepository.save(message);
@@ -118,7 +147,7 @@ public class DatabaseSeeder {
                 sender.setTotalMessagesSent(sender.getTotalMessagesSent() + 1);
                 recipient.setTotalMessagesReceived(recipient.getTotalMessagesReceived() + 1);
                 deviceRepository.save(sender);
-                deviceRepository.save(recipient); 
+                deviceRepository.save(recipient);
             }
         }
     }

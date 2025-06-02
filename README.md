@@ -76,8 +76,8 @@ POST http://localhost:8080/auth/login
 **Body (JSON):**
 ```json
 {
-  "email": "admin@example.com",
-  "password": "admin123"
+  "email": "alice@email.com",
+  "password": "123456"
 }
 ```
 
