@@ -9,7 +9,7 @@ As mensagens possuem informações como:
 - 📱 **Dispositivo Remetente**
 - 📥 **Dispositivo Destinatário**
 - ⏰ **Timestamp**
-- 🚚 **Status de entrega e encaminhamento**
+- 📩 **Status de entrega e encaminhamento**
 
 Com suporte a **filtros dinâmicos via Specification** e **cache de resultados** para otimizar a performance.
 
