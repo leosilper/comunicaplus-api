@@ -66,10 +66,12 @@ public class DatabaseSeeder {
         if (messageRepository.count() == 0) {
             List<Device> devices = deviceRepository.findAll();
 
-            // Uma mensagem de cada tipo
-            for (MessageType type : MessageType.values()) {
-                createMessage(devices, "Mensagem do tipo: " + type.name(), type);
-            }
+            
+            createMessage(devices, "Alerta de movimentação incomum no setor norte.", MessageType.ALERT);
+            createMessage(devices, "Solicito assistência médica imediata.", MessageType.REQUEST_HELP);
+            createMessage(devices, "Informação compartilhada sobre rota segura.", MessageType.INFO);
+            createMessage(devices, "Grupo de apoio localizado próximo à escola.", MessageType.INFO);
+            createMessage(devices, "Enviando suprimentos para a base oeste.", MessageType.FORWARDED);
 
             // Mensagens adicionais
             String[] contents = {
@@ -90,11 +92,11 @@ public class DatabaseSeeder {
     private MessageType determineMessageType(String content) {
         String lowerContent = content.toLowerCase();
 
-        if (lowerContent.contains("socorro") || lowerContent.contains("ajuda")) {
+        if (lowerContent.contains("socorro") || lowerContent.contains("ajuda") || lowerContent.contains("assistência")) {
             return MessageType.REQUEST_HELP;
         } else if (lowerContent.contains("alerta") || lowerContent.contains("sinal")) {
             return MessageType.ALERT;
-        } else if (lowerContent.contains("kit") || lowerContent.contains("instruções")) {
+        } else if (lowerContent.contains("kit") || lowerContent.contains("instruções") || lowerContent.contains("enviando")) {
             return MessageType.FORWARDED;
         } else {
             return MessageType.INFO;
