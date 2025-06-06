@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@oracle.fiap.com.br:1521:orcl
-    driver-class-name: oracle.jdbc.OracleDriver
-    username: rm557598
-    password: 040903
+    "url": "jdbc:oracle:thin:@oracle.fiap.com.br:1521:orcl"
+    "driver-class-name": "oracle.jdbc.OracleDriver"
+    "username": "rm557598"
+    "password": "040903"
   jpa:
     hibernate:
       ddl-auto: update
@@ -15,6 +15,6 @@ spring:
 
 springdoc:
   swagger-ui:
-    path: /swagger-ui.html
+    "path": "/swagger-ui.html"
   api-docs:
-    path: /v3/api-docs
+    "path": "/v3/api-docs"
