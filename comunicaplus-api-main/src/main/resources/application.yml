@@ -2,6 +2,9 @@ spring:
   profiles:
     active: oracle ## ou 'oracle' para trocar
 
+server:
+  port: 8080
+
 # Comum para os dois perfis
 springdoc:
   api-docs.path: /v3/api-docs
