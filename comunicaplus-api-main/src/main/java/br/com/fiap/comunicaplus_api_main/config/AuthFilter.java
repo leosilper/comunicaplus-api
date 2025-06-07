@@ -22,7 +22,6 @@ public class AuthFilter extends OncePerRequestFilter {
     @Autowired
     private TokenService tokenService;
 
-    // Lista de rotas públicas que devem ser ignoradas pelo filtro
     private static final List<String> PUBLIC_PATHS = List.of(
         "/auth/login",
         "/auth/register",
@@ -40,7 +39,6 @@ public class AuthFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // Ignorar autenticação em rotas públicas
         if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
             System.out.println("→ Rota pública liberada: " + path);
             filterChain.doFilter(request, response);

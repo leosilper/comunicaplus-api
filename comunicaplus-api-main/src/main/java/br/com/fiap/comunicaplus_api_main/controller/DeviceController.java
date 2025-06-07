@@ -26,14 +26,14 @@ public class DeviceController {
     private final DeviceRepository deviceRepository;
     private final MessageRepository messageRepository;
 
-    // ✅ Endpoint para cadastrar novo dispositivo
+    // Endpoint para cadastrar novo dispositivo
     @PostMapping
     public ResponseEntity<Device> create(@RequestBody @Valid Device device) {
         Device saved = deviceRepository.save(device);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    // ✅ Endpoint para resumo dos dispositivos
+    // Endpoint para resumo dos dispositivos
     @GetMapping("/summary")
     public List<DeviceSummaryDTO> listSummary() {
         return deviceRepository.findAll().stream().map(device -> {

@@ -1,7 +1,9 @@
 
 # 📋 Sobre o Projeto
 
-A **ComunicaPlus API** é uma aplicação backend desenvolvida com **Spring Boot 3**, projetada para facilitar a comunicação entre dispositivos através do envio, recebimento e gerenciamento de mensagens. Ideal para sistemas de **IoT** ou ambientes distribuídos onde múltiplos dispositivos se comunicam entre si.
+A **ComunicaPlus** API é uma aplicação backend desenvolvida com **Spring Boot 3**, criada para viabilizar a comunicação entre celulares em situações de emergência, mesmo sem internet, sinal de operadora ou energia elétrica.
+
+O sistema apoia um aplicativo móvel leve, que utiliza Bluetooth e Wi-Fi Direct para enviar e encaminhar mensagens entre dispositivos próximos, garantindo que informações e pedidos de socorro possam circular mesmo em cenários de desastre.
 
 As mensagens possuem informações como:
 
