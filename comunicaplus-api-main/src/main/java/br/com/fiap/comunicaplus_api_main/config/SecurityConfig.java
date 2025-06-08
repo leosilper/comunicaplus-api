@@ -42,7 +42,7 @@ public class SecurityConfig {
 
                 // Usuários
                 .requestMatchers(HttpMethod.POST, "/users", "/users/**").permitAll()
-                .requestMatchers("/users/**").permitAll()  // <-- Agora permite todos os métodos (GET, POST etc.)
+                .requestMatchers("/users/**").permitAll()  // <-- permite todos os métodos (GET, POST etc.)
 
 
                 // Endpoints públicos específicos

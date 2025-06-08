@@ -59,13 +59,13 @@ public class AuthFilter extends OncePerRequestFilter {
         if (header == null) {
             System.out.println("→ Sem header Authorization - rejeitando requisição");
             sendUnauthorizedResponse(response, "Header Authorization é obrigatório");
-            return; // ✅ FIXED: Added missing return
+            return; 
         }
 
         if (!header.startsWith("Bearer ")) {
             System.out.println("→ Token não começa com 'Bearer '");
             sendUnauthorizedResponse(response, "Token deve começar com Bearer");
-            return; // ✅ FIXED: Added missing return
+            return; 
         }
 
         var token = header.replace("Bearer ", "").trim();
@@ -84,19 +84,19 @@ public class AuthFilter extends OncePerRequestFilter {
             } else {
                 System.out.println("→ Usuário não encontrado no token");
                 sendUnauthorizedResponse(response, "Token inválido - usuário não encontrado");
-                return; // ✅ FIXED: Added missing return
+                return; 
             }
 
         } catch (Exception e) {
             System.err.println("→ Erro ao validar token: " + e.getMessage());
             e.printStackTrace(); // Para debug
             sendUnauthorizedResponse(response, "Token inválido ou expirado");
-            return; // ✅ FIXED: Added missing return
+            return; 
         }
     }
 
     private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
-        // ✅ IMPROVEMENT: Check if response is already committed
+        
         if (response.isCommitted()) {
             System.err.println("→ Response já foi enviada, não é possível modificar");
             return;
@@ -104,10 +104,10 @@ public class AuthFilter extends OncePerRequestFilter {
         
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8"); // ✅ IMPROVEMENT: Set charset
+        response.setCharacterEncoding("UTF-8"); 
         response.getWriter().write(String.format("""
             { "message": "%s", "status": 401 }
         """, message));
-        response.getWriter().flush(); // ✅ IMPROVEMENT: Ensure response is sent
+        response.getWriter().flush();
     }
 }

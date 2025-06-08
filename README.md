@@ -186,7 +186,7 @@ GET /api/messages?content=hello&deviceId=2
 ## 🚀 7. Criar uma nova mensagem
 
 ```http
-POST http://localhost:8080/api/messages
+POST http://localhost:8080/api/messages/
 ```
 
 **Body (JSON):**  
@@ -207,7 +207,7 @@ POST http://localhost:8080/api/messages
 ## 🚀 8. Atualizar uma mensagem
 
 ```http
-PUT /api/messages/1
+PUT http://localhost:8080/api/messages/{id}
 ```
 
 **Body (JSON):**  
