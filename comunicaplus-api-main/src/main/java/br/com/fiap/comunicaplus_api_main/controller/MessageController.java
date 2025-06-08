@@ -31,8 +31,21 @@ public class MessageController {
 
     @PostMapping
     public ResponseEntity<MessageDTO> create(@RequestBody @Valid Message message) {
+        // Buscar o sender e recipient pelo ID para garantir que estão completos
+        Device sender = message.getSender() != null && message.getSender().getId() != null
+                ? deviceRepository.findById(message.getSender().getId()).orElse(null)
+                : null;
+
+        Device recipient = message.getRecipient() != null && message.getRecipient().getId() != null
+                ? deviceRepository.findById(message.getRecipient().getId()).orElse(null)
+                : null;
+
+        message.setSender(sender);
+        message.setRecipient(recipient);
+
         Message saved = messageService.save(message);
-        return ResponseEntity.created(URI.create("/api/messages/" + saved.getId()))
+
+        return ResponseEntity.created(URI.create("/api/messages/" + saved.getIdMessage()))
                              .body(toDTO(saved));
     }
 
@@ -91,7 +104,7 @@ public class MessageController {
 
     private MessageDTO toDTO(Message message) {
         MessageDTO dto = new MessageDTO();
-        dto.setId(message.getId());
+        dto.setIdMessage(message.getIdMessage());
         dto.setContent(message.getContent());
         dto.setSenderDeviceName(message.getSender() != null ? message.getSender().getDeviceName() : null);
         dto.setRecipientDeviceName(message.getRecipient() != null ? message.getRecipient().getDeviceName() : null);

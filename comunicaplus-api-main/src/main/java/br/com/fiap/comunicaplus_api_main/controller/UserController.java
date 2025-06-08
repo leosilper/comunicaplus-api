@@ -24,4 +24,10 @@ public class UserController {
         User savedUser = repository.save(user);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
+
+    @GetMapping
+    public ResponseEntity<Iterable<User>> getAllUsers() {
+        Iterable<User> users = repository.findAll();
+        return ResponseEntity.ok(users);
+    }
 }

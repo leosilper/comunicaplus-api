@@ -37,15 +37,9 @@ public class User implements UserDetails {
     @Size(min = 5, message = "A senha deve ter no mínimo 5 caracteres")
     private String password;
 
-    @NotBlank(message = "O ID do dispositivo é obrigatório")
-    @Column(unique = true, nullable = false)
-    private String deviceId;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
-
-    // Implementações exigidas pela interface UserDetails:
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class MessageDTO {
-    private Long id;
+    private Long idMessage;
     private String senderDeviceName;
     private String recipientDeviceName;
     private String content;

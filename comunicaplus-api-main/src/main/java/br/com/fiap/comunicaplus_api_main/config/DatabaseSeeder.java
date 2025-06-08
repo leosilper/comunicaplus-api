@@ -41,9 +41,9 @@ public class DatabaseSeeder {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
             List<User> users = List.of(
-                User.builder().name("Alice").email("alice@email.com").password(encoder.encode("123456")).deviceId("device-alice-001").role(Role.USER).build(),
-                User.builder().name("Bob").email("bob@email.com").password(encoder.encode("123456")).deviceId("device-bob-001").role(Role.USER).build(),
-                User.builder().name("Carol").email("carol@email.com").password(encoder.encode("123456")).deviceId("device-carol-001").role(Role.ADMIN).build()
+                User.builder().name("Alice").email("alice@email.com").password(encoder.encode("123456")).role(Role.USER).build(),
+                User.builder().name("Bob").email("bob@email.com").password(encoder.encode("123456")).role(Role.USER).build(),
+                User.builder().name("Carol").email("carol@email.com").password(encoder.encode("123456")).role(Role.ADMIN).build()
             );
 
             userRepository.saveAll(users);
@@ -66,14 +66,12 @@ public class DatabaseSeeder {
         if (messageRepository.count() == 0) {
             List<Device> devices = deviceRepository.findAll();
 
-            
             createMessage(devices, "Alerta de movimentação incomum no setor norte.", MessageType.ALERT);
             createMessage(devices, "Solicito assistência médica imediata.", MessageType.REQUEST_HELP);
             createMessage(devices, "Informação compartilhada sobre rota segura.", MessageType.INFO);
             createMessage(devices, "Grupo de apoio localizado próximo à escola.", MessageType.INFO);
             createMessage(devices, "Enviando suprimentos para a base oeste.", MessageType.FORWARDED);
 
-            // Mensagens adicionais
             String[] contents = {
                 "Sinal fraco nesta região.",
                 "Preciso de socorro no bairro Novo Horizonte.",

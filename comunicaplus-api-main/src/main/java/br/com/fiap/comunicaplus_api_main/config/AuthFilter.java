@@ -22,13 +22,20 @@ public class AuthFilter extends OncePerRequestFilter {
     @Autowired
     private TokenService tokenService;
 
+    // Lista de rotas públicas que devem ser ignoradas pelo filtro
     private static final List<String> PUBLIC_PATHS = List.of(
         "/auth/login",
-        "/auth/register",
+        "/auth/register", 
+        "/users", // Para criação de usuários
         "/v3/api-docs",
         "/swagger-ui",
         "/swagger-ui.html",
-        "/h2-console"
+        "/swagger-resources",
+        "/webjars",
+        "/h2-console",
+        "/error",
+        "/api/devices", // Endpoint público específico
+        "/favicon.ico"  // Favicon requests
     );
 
     @Override
@@ -36,9 +43,11 @@ public class AuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         System.out.println("=== FILTRO DE AUTENTICAÇÃO ===");
+        System.out.println("→ Processando: " + request.getServletPath());
 
         String path = request.getServletPath();
 
+        // Ignorar autenticação em rotas públicas
         if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
             System.out.println("→ Rota pública liberada: " + path);
             filterChain.doFilter(request, response);
@@ -48,19 +57,15 @@ public class AuthFilter extends OncePerRequestFilter {
         var header = request.getHeader("Authorization");
 
         if (header == null) {
-            System.out.println("→ Sem header Authorization");
-            filterChain.doFilter(request, response);
-            return;
+            System.out.println("→ Sem header Authorization - rejeitando requisição");
+            sendUnauthorizedResponse(response, "Header Authorization é obrigatório");
+            return; // ✅ FIXED: Added missing return
         }
 
         if (!header.startsWith("Bearer ")) {
             System.out.println("→ Token não começa com 'Bearer '");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("""
-                { "message": "Token deve começar com Bearer" }
-            """);
-            return;
+            sendUnauthorizedResponse(response, "Token deve começar com Bearer");
+            return; // ✅ FIXED: Added missing return
         }
 
         var token = header.replace("Bearer ", "").trim();
@@ -74,17 +79,35 @@ public class AuthFilter extends OncePerRequestFilter {
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 System.out.println("→ Usuário autenticado: " + user.getUsername());
+                
+                filterChain.doFilter(request, response);
+            } else {
+                System.out.println("→ Usuário não encontrado no token");
+                sendUnauthorizedResponse(response, "Token inválido - usuário não encontrado");
+                return; // ✅ FIXED: Added missing return
             }
-
-            filterChain.doFilter(request, response);
 
         } catch (Exception e) {
             System.err.println("→ Erro ao validar token: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("""
-                { "message": "Token inválido ou expirado" }
-            """);
+            e.printStackTrace(); // Para debug
+            sendUnauthorizedResponse(response, "Token inválido ou expirado");
+            return; // ✅ FIXED: Added missing return
         }
+    }
+
+    private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
+        // ✅ IMPROVEMENT: Check if response is already committed
+        if (response.isCommitted()) {
+            System.err.println("→ Response já foi enviada, não é possível modificar");
+            return;
+        }
+        
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8"); // ✅ IMPROVEMENT: Set charset
+        response.getWriter().write(String.format("""
+            { "message": "%s", "status": 401 }
+        """, message));
+        response.getWriter().flush(); // ✅ IMPROVEMENT: Ensure response is sent
     }
 }

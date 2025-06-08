@@ -29,7 +29,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "message_seq")
     @SequenceGenerator(name = "message_seq", sequenceName = "SEQ_MESSAGE", allocationSize = 1)
     @Column(name = "ID_MESSAGE")
-    private Long id;
+    private Long idMessage;
 
 
     @NotNull(message = "O dispositivo de origem é obrigatório")
