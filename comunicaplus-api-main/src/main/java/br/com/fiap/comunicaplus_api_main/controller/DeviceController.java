@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.fiap.comunicaplus_api_main.dto.DeviceDTO;
 import br.com.fiap.comunicaplus_api_main.dto.DeviceSummaryDTO;
 import br.com.fiap.comunicaplus_api_main.model.Device;
 import br.com.fiap.comunicaplus_api_main.repository.DeviceRepository;
@@ -30,6 +33,23 @@ public class DeviceController {
     private final DeviceRepository deviceRepository;
     private final MessageRepository messageRepository;
 
+    // ✅ NOVO: GET - Paginação de dispositivos
+    @GetMapping
+    public Page<DeviceDTO> list(Pageable pageable) {
+        return deviceRepository.findAll(pageable)
+                .map(device -> {
+                    DeviceDTO dto = new DeviceDTO();
+                    dto.setId(device.getId());
+                    dto.setDeviceName(device.getDeviceName());
+                    dto.setBluetoothAddress(device.getBluetoothAddress());
+                    dto.setWifiDirectAddress(device.getWifiDirectAddress());
+                    dto.setStatus(device.getStatus() != null ? device.getStatus().name() : null);
+                    dto.setTotalMessagesSent(device.getTotalMessagesSent());
+                    dto.setTotalMessagesReceived(device.getTotalMessagesReceived());
+                    return dto;
+                });
+    }
+
     // POST - Cadastrar novo dispositivo
     @PostMapping
     public ResponseEntity<Device> create(@RequestBody @Valid Device device) {
@@ -42,7 +62,7 @@ public class DeviceController {
     public List<DeviceSummaryDTO> listSummary() {
         return deviceRepository.findAll().stream().map(device -> {
             DeviceSummaryDTO dto = new DeviceSummaryDTO();
-            dto.setId(device.getId()); // Adiciona o ID ao DTO
+            dto.setId(device.getId());
             dto.setDeviceName(device.getDeviceName());
             dto.setBluetoothAddress(device.getBluetoothAddress());
             dto.setWifiDirectAddress(device.getWifiDirectAddress());
